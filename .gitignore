@@ -3,3 +3,4 @@ validator.py
 .venv
 test_jpgs
 .idea
+.env
