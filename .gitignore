@@ -4,3 +4,4 @@ validator.py
 test_jpgs
 .idea
 .env
+app/__pycache__/
