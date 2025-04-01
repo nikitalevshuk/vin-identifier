@@ -1,5 +1,6 @@
 from openai import OpenAI
 from app.config import settings
+from app.logger import get_logger
 import base64
 
 
@@ -7,10 +8,11 @@ client = OpenAI(
     api_key=settings.QWEN_API_KEY,
     base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 )
+logger = get_logger(__name__)
 
-def encode_image(image_path: str):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+def encode_image(image_bytes: bytes):
+    logger.info("Началась работа функции encode_image")
+    return base64.b64encode(image_bytes).decode("utf-8")
 
 test_prompt = """
 🔹 **Задача**: Найди и прочитай VIN-код на изображении.  
@@ -34,7 +36,8 @@ test_prompt = """
 Пусть в ответе будет только VIN номер.
 """
 
-async def qwen_get_vin(image_path: str):
+async def qwen_get_vin(image_bytes: bytes):
+    logger.info("Началась работа функции qwen_get_vin")
     completion = await client.chat.completions.create(
         model="qwen2.5-vl-7b-instruct",
         messages=[
@@ -48,7 +51,7 @@ async def qwen_get_vin(image_path: str):
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:image/jpeg;base64,{encode_image(image_path)}"
+                            "url": f"data:image/jpeg;base64,{encode_image(image_bytes)}"
                         },
                     },
                 ],

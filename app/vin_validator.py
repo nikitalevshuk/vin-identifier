@@ -1,3 +1,7 @@
+from app.logger import get_logger
+
+logger = get_logger(__name__)
+
 # Таблица значений VIN-символов
 VIN_TRANSLATION = {
     **{str(i): i for i in range(10)},  # Цифры 0-9
@@ -13,29 +17,32 @@ VIN_WEIGHTS = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
 
 def calculate_vin_checksum(vin):
     """Рассчитывает контрольную сумму VIN-кода по ISO 3779."""
+    logger.info("Началась работа функции calculate_vin_checksum")
+
     total = sum(VIN_TRANSLATION[vin[i]] * VIN_WEIGHTS[i] for i in range(17) if i != 8)
     remainder = total % 11
     return "X" if remainder == 10 else str(remainder)
 
 
-def check_vin(vin):
+def check_vin(vin: str):
     """Проверяет, соответствует ли VIN-код стандарту ISO 3779 (формат + контрольная сумма)."""
+    logger.info("Началась работа функции check_vin")
 
     # 1. Проверяем длину
     if len(vin) != 17:
-        return False, "Неверная длина VIN (должно быть 17 символов)."
+        return False
 
     # 2. Проверяем запрещенные символы
     if any(char in "IOQ" for char in vin):
-        return False, "VIN не должен содержать буквы I, O, Q."
+        return False
 
     # 3. Проверяем, что 12-17 символы – только цифры (серийный номер)
     if not vin[11:].isdigit():
-        return False, "Серийный номер (12-17 символы) должен содержать только цифры."
+        return False
 
     # 4. Проверяем контрольную сумму
     expected_checksum = calculate_vin_checksum(vin)
     if vin[8] != expected_checksum:
-        return False, f"Ошибка контрольной суммы: ожидалось {expected_checksum}, получено {vin[8]}"
+        return False
 
     return True
