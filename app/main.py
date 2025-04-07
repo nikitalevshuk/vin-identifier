@@ -12,7 +12,6 @@ async def recognize_vin(file: UploadFile = File(...)):
         logger.info("Началась работа /vin/ эндпоинта")
 
         image_bytes = await file.read()
-        logger.info(str(image_bytes))
 
         vin = await qwen_get_vin(image_bytes)
 
@@ -21,7 +20,8 @@ async def recognize_vin(file: UploadFile = File(...)):
         if vin_valid:
             return {"vin": vin, "isValid": vin_valid}
         else:
-            return {"vin": 0, "isValid": vin_valid}
+            return {"vin": "Не распознан"}
 
     except Exception as e:
+        logger.info(f"ошибка в мейне {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка обработки: {e}")

@@ -5,6 +5,8 @@ load_dotenv()
 
 class Settings(BaseSettings):
     QWEN_API_KEY: str
+    FASTAPI_URL: str
+    OPENAI_API_KEY: str
 
     model_config = SettingsConfigDict(env_file=".env")
 
